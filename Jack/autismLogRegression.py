@@ -41,6 +41,7 @@ def uNiQuE(vec):
         
     return vec
 
+
 def preProcess(data):
     i = 0
     for q in range(len(data)):
@@ -94,30 +95,84 @@ def preProcess(data):
         
         labels[i] = int(labels[i] == 'yes')
     
+    
+    #normalize data
+    data[:,10] = data[:,10]/max(data[:,10])
+    data[:,12] = data[:,10]/max(data[:,12])
+    data[:,15] = data[:,10]/max(data[:,15])
+    data[:,17] = data[:,10]/max(data[:,17])
+    data[:,19] = data[:,10]/max(data[:,19])
+    
     return data, labels
 
 
+def kNN(trainingData, trainingLabels, testData, k):
+    distances = []
+    for sample in trainingData:
+        distances.append(np.linalg.norm(sample - testData))
+    
+    idx = np.argpartition(distances, k)
+    labs = trainingLabels[idx]
+    labs = labs[:k]
+    unique, counts = np.unique(labs, return_counts=True)
+    if len(counts) == 1:
+        return unique[0]
 
-#data, meta = ARFF.loadarff('Autism-Adult-Data.arff')
+    if counts[0] > counts[1]:
+        return unique[0]
+    elif counts[1] > counts[0]:
+        return unique[1]
+    return 1
+
+
+def calcErr(trainingData, trainingLabels, testData, testLabels, k = 7):
+    err = []
+    for i in range(len(testData)):    
+        err.append(1-int(kNN(trainingData, trainingLabels, testData[0],k) == testLabels[i]))
+    
+    return 1-sum(err)/len(err)
+
+
+
+def kFold(data, labels, kFolds, k = 7):
+    #shuffle
+    inds = np.random.choice(np.arange(len(data)), len(data))
+    data[:] = data[inds]
+    labels[:] = labels[inds]
+
+    startInd = 0
+    stepSize = int(len(data)/kFolds)
+    kErrs = []
+    for i in range(kFolds):
+        if i != kFolds-1:
+            testData = data[startInd:startInd+stepSize]
+            testLabels = labels[startInd:startInd+stepSize]
+            trainingData = data[:startInd]
+            trainingData = np.concatenate((trainingData, data[startInd+stepSize:]))
+            trainingLabels = labels[:startInd]
+            trainingLabels = np.concatenate((trainingLabels,labels[startInd+stepSize:]))
+        else:
+            testData = data[startInd:]
+            testLabels = labels[startInd:]
+            trainingData = data[:startInd]
+            trainingLabels = labels[:startInd]
+
+        startInd += stepSize
+        temp = calcErr(trainingData, trainingLabels, testData, testLabels, k)
+        kErrs.append(temp)
+    
+    return kErrs
+        
+
 dataset = ARFF.load(open('Autism-Adult-Data.arff'))
 data = np.array(dataset['data'])    
 
-
 data,labels = preProcess(data)
 
-
-inds = np.random.choice(np.arange(len(data)), len(data))
-data[:] = data[inds]
-labels[:] = labels[inds]
-
-splitInd = int(len(data)*.9)
-trainingData = data[:splitInd].T
-trainingLabels = labels[:splitInd]
-testData = data[splitInd:].T
-testLabels = labels[splitInd:]
-
-
-
+for i in np.arange(3,13,2):
+    kErrs = kFold(data,labels, 6, k = i)
+    print('k = ', i, ' with average = ' , np.average(kErrs))
+    print(kErrs)
 
 
 
