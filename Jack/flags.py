@@ -61,7 +61,6 @@ def uNiQuE(vec):
         
     return vec   
 
-
 def kFold(data, labels, kFolds):
     #shuffle
     inds = np.random.choice(np.arange(len(data)), len(data))
@@ -87,7 +86,6 @@ def kFold(data, labels, kFolds):
             trainingLabels = labels[:startInd]
 
         startInd += stepSize
-        
         temp, pList = calcErrNaive(trainingData, trainingLabels, testData, testLabels)
         Acc.append(temp)
         predictions.extend(pList)
@@ -104,9 +102,7 @@ def trainNaive(data, labels):
     #conditional = (labels, feature, values in feature)
     for i in range(len(data)):
         for j in range(len(data[i])):
-#            print(j)
             conditional[labels[i], j, data[i,j]] += 1
-
     for i in range(len(conditional)):
         for j in range(len(conditional[0])):
             sumCondition = 0
@@ -124,7 +120,6 @@ def testNaive(prior, conditional, unique, sample):
     for i in range(len(sample)):
         for j in range(len(prob)):
             prob[j] = prob[j] * conditional[j,i,sample[i]]
-    
     maxVal = np.argmax(prob)
         
     return unique[maxVal]
@@ -174,33 +169,29 @@ def preProcess(data):
     return data
 
 tempData = preProcess(data.T)
-#print(tempData[0])
-#for i in range(len(tempData[0])):
-#    print(type(tempData[0,i]))
-#print(tempData[0])
-#print(type(tempData))
-#print(tempData.shape)
 religions = uNiQuE(labels)
 tempLabels = labels[:]
 for i in range(len(labels)):
     tempInd = np.where(religions == labels[i])
     tempLabels[i] = int(tempInd[0])
-#print(tempLabels)
-
-acc, actual, predictions = kFold(tempData, tempLabels, 5)
-#print(type(actual[0]))
-print(religions[0])
-#for a in actual:
-#    print(religions[a])
-print(acc)
-print(predictions)
-print(actual)
+    
+for i in np.arange(3,13,2):
+    acc, actual, predictions = kFold(tempData, tempLabels, 5)
+    print('k = ', i, ' with average accuracy = ' , np.average(acc).round(6))
+    print('Accuracy for each fold: ', acc)
 
 
 
 
-
-
+acc, actual, predictions = kFold(tempData, tempLabels, 11)
+print('Actual Religions and Predicted Religion for first 20 samples: ')
+for i in range(20):
+    if actual[i] == 2:
+        print('Actual: ', religions[actual[i]], '\t Predicted:', religions[predictions[i]])
+    elif actual[i] == 6:
+        print('Actual: ', religions[actual[i]], '\t \t \t Predicted:', religions[predictions[i]])
+    else:
+        print('Actual: ', religions[actual[i]], '\t \t Predicted:', religions[predictions[i]])
 
 
 

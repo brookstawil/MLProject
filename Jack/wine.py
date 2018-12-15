@@ -8,7 +8,6 @@ Created on Fri Dec 14 22:01:44 2018
 import numpy as np
 import matplotlib.pyplot as plt
 
-
 red_filedata = np.genfromtxt('winequality-red.csv', delimiter=';', skip_header=1)
 white_filedata = np.genfromtxt('winequality-white.csv', delimiter=';', skip_header=1)
 
@@ -64,10 +63,9 @@ def calcAcc(trainingData, trainingLabels, testData, testLabels, kFeat = 3):
         predicted = np.matmul(sample,gamma)
         predictedList.append(predicted)
         err += abs(predicted - testLabels[0,i])
-    
     err /= testData.shape[1]    
-    return err, predictedList
     
+    return err, predictedList
     
 
 def kFold(data, labels, typeWine, kFeat = 5, kFolds = 5):
@@ -210,3 +208,4 @@ lower = min([ymin,xmin])
 upper = max([ymax, xmax])
 print(lower, upper)
 ax.plot( [lower, upper] , [lower, upper], 'k-')
+

@@ -38,7 +38,6 @@ def uNiQuE(vec):
         
     return vec
 
-
 def preProcess(data):
     i = 0
     for q in range(len(data)):
@@ -92,16 +91,7 @@ def preProcess(data):
         
         labels[i] = int(labels[i] == 'yes')
     
-    
-    #normalize data
-#    data[:,10] = data[:,10]/max(data[:,10])
-#    data[:,12] = data[:,10]/max(data[:,12])
-#    data[:,15] = data[:,10]/max(data[:,15])
-#    data[:,17] = data[:,10]/max(data[:,17])
-#    data[:,19] = data[:,10]/max(data[:,19])
-    
     return data, labels
-
 
 def kNN(trainingData, trainingLabels, testData, k):
     distances = []
@@ -121,15 +111,12 @@ def kNN(trainingData, trainingLabels, testData, k):
         return unique[1]
     return 1
 
-
 def calcErr(trainingData, trainingLabels, testData, testLabels, k = 7):
     err = []
     for i in range(len(testData)):    
         err.append(int(kNN(trainingData, trainingLabels, testData[0],k) != testLabels[i]))
     
     return 1-sum(err)/len(err)
-
-    
 
 def kFold(data, labels, kFolds, typ = 'kNN', k = 7):
     #shuffle
@@ -139,6 +126,11 @@ def kFold(data, labels, kFolds, typ = 'kNN', k = 7):
 
     startInd = 0
     stepSize = int(len(data)/kFolds)
+    max10 = max(data[:,10])
+    max12 = max(data[:,12])
+    max15 = max(data[:,15])
+    max17 = max(data[:,17])
+    max19 = max(data[:,19])
     Errs = []
     for i in range(kFolds):
         if i != kFolds-1:
@@ -153,18 +145,26 @@ def kFold(data, labels, kFolds, typ = 'kNN', k = 7):
             testLabels = labels[startInd:]
             trainingData = data[:startInd]
             trainingLabels = labels[:startInd]
-
-        startInd += stepSize
-        
+        startInd += stepSize      
         if typ == 'kNN':
+            trainingData[:,10] = trainingData[:,10]/max10
+            trainingData[:,12] = trainingData[:,12]/max12
+            trainingData[:,15] = trainingData[:,15]/max15
+            trainingData[:,17] = trainingData[:,17]/max17
+            trainingData[:,19] = trainingData[:,19]/max19
+            testData[:,10] = testData[:,10]/max10
+            testData[:,12] = testData[:,12]/max12
+            testData[:,15] = testData[:,15]/max15
+            testData[:,17] = testData[:,17]/max17
+            testData[:,19] = testData[:,19]/max19
             temp = calcErr(trainingData, trainingLabels, testData, testLabels, k)
         elif typ == 'naive':
             temp = calcErrNaive(trainingData, trainingLabels, testData, testLabels)
+        
         Errs.append(temp)
     
     return Errs
         
-
 def trainNaive(data, labels):
     unique, counts = np.unique(labels, return_counts=True)
     prior = np.array([counts[0], counts[1]])
@@ -174,17 +174,13 @@ def trainNaive(data, labels):
         for j in range(len(data[i])):
             conditional[labels[i], j, data[i,j]] += 1
             
-    
-    
     for i in range(len(conditional)):
         for j in range(len(conditional[0])):
             sumCondition = sum(conditional[0,j]) + sum(conditional[1,j])
             for k in range(len(conditional[0,j])):
                 conditional[i,j,k] = conditional[i,j,k]/sumCondition
     
-
     return prior, conditional, unique
-
 
 def testNaive(prior, conditional, unique, sample):
     prob = np.array([prior[0],prior[1]])
@@ -207,25 +203,19 @@ def calcErrNaive(trainingData, trainingLabels, testData, testLabels):
     return np.round(1-errs/len(testLabels), 6)
     
 dataset = ARFF.load(open('Autism-Adult-Data.arff'))
-data = np.array(dataset['data'])    
-
-data,labels = preProcess(data)
-
-#for i in np.arange(3,13,2):
-#    kErrs = kFold(data,labels, 6, k = i)
-#    print('k = ', i, ' with average = ' , np.average(kErrs))
-#    print(kErrs)
-
-#print(data[0])
-inds = np.random.choice(np.arange(len(data)), len(data))
-data[:] = data[inds]
-labels[:] = labels[inds]
-print(type(data))
-print(data.shape)
+DATA = np.array(dataset['data'])    
+DATA, LABELS = preProcess(DATA)
+inds = np.random.choice(np.arange(len(DATA)), len(DATA))
+DATA[:] = DATA[inds]
+LABELS[:] = LABELS[inds]
 for i in np.arange(3,13,2):
-    kErrs = kFold(data, labels, i, typ = 'naive')
+    kErrs = kFold(DATA, LABELS, i, typ = 'naive')
     print('k = ', i, ' with average accuracy = ' , np.average(kErrs).round(6))
-    print(kErrs)
+    print('Accuracy for each fold: ', kErrs)
+
+
+
+
 
 
 
