@@ -192,7 +192,7 @@ def testNaive(prior, conditional, unique, sample):
         prob[0] = prob[0] * conditional[0,i,sample[i]]
         prob[1] = prob[1] * conditional[1,i,sample[i]]
     
-    if prob[0] >= prob[0]:
+    if prob[0] >= prob[1]:
         return unique[0]
         
     return unique[1]
@@ -220,7 +220,8 @@ data,labels = preProcess(data)
 inds = np.random.choice(np.arange(len(data)), len(data))
 data[:] = data[inds]
 labels[:] = labels[inds]
-
+print(type(data))
+print(data.shape)
 for i in np.arange(3,13,2):
     kErrs = kFold(data, labels, i, typ = 'naive')
     print('k = ', i, ' with average accuracy = ' , np.average(kErrs).round(6))
