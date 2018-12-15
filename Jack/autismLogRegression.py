@@ -9,7 +9,7 @@ import numpy as np
 import arff as ARFF
 import matplotlib.pyplot as plt
 from scipy.io import arff 
-
+#from sklearn import svm 
 #Classification
 
 """
@@ -97,11 +97,11 @@ def preProcess(data):
     
     
     #normalize data
-    data[:,10] = data[:,10]/max(data[:,10])
-    data[:,12] = data[:,10]/max(data[:,12])
-    data[:,15] = data[:,10]/max(data[:,15])
-    data[:,17] = data[:,10]/max(data[:,17])
-    data[:,19] = data[:,10]/max(data[:,19])
+#    data[:,10] = data[:,10]/max(data[:,10])
+#    data[:,12] = data[:,10]/max(data[:,12])
+#    data[:,15] = data[:,10]/max(data[:,15])
+#    data[:,17] = data[:,10]/max(data[:,17])
+#    data[:,19] = data[:,10]/max(data[:,19])
     
     return data, labels
 
@@ -128,13 +128,13 @@ def kNN(trainingData, trainingLabels, testData, k):
 def calcErr(trainingData, trainingLabels, testData, testLabels, k = 7):
     err = []
     for i in range(len(testData)):    
-        err.append(1-int(kNN(trainingData, trainingLabels, testData[0],k) == testLabels[i]))
+        err.append(int(kNN(trainingData, trainingLabels, testData[0],k) != testLabels[i]))
     
     return 1-sum(err)/len(err)
 
+    
 
-
-def kFold(data, labels, kFolds, k = 7):
+def kFold(data, labels, kFolds, typ = 'kNN', k = 7):
     #shuffle
     inds = np.random.choice(np.arange(len(data)), len(data))
     data[:] = data[inds]
@@ -142,7 +142,7 @@ def kFold(data, labels, kFolds, k = 7):
 
     startInd = 0
     stepSize = int(len(data)/kFolds)
-    kErrs = []
+    Errs = []
     for i in range(kFolds):
         if i != kFolds-1:
             testData = data[startInd:startInd+stepSize]
@@ -158,35 +158,76 @@ def kFold(data, labels, kFolds, k = 7):
             trainingLabels = labels[:startInd]
 
         startInd += stepSize
-        temp = calcErr(trainingData, trainingLabels, testData, testLabels, k)
-        kErrs.append(temp)
+        
+        if typ == 'kNN':
+            temp = calcErr(trainingData, trainingLabels, testData, testLabels, k)
+        elif typ == 'naive':
+            temp = calcErrNaive(trainingData, trainingLabels, testData, testLabels)
+        Errs.append(temp)
     
-    return kErrs
+    return Errs
         
 
+def trainNaive(data, labels):
+    unique, counts = np.unique(labels, return_counts=True)
+    prior = np.array([counts[0], counts[1]])
+    prior = (prior+0.0)/len(data)
+    conditional = np.zeros((2, len(data[0]), 60))
+    for i in range(len(data)):
+        for j in range(len(data[i])):
+            conditional[labels[i], j, data[i,j]] += 1
+            
+    
+    
+    for i in range(len(conditional)):
+        for j in range(len(conditional[0])):
+            sumCondition = sum(conditional[0,j]) + sum(conditional[1,j])
+            for k in range(len(conditional[0,j])):
+                conditional[i,j,k] = conditional[i,j,k]/sumCondition
+    
+
+    return prior, conditional, unique
+
+
+def testNaive(prior, conditional, unique, sample):
+    prob = np.array([prior[0],prior[1]])
+    for i in range(len(sample)):
+        prob[0] = prob[0] * conditional[0,i,sample[i]]
+        prob[1] = prob[1] * conditional[1,i,sample[i]]
+    
+    if prob[0] >= prob[0]:
+        return unique[0]
+        
+    return unique[1]
+        
+def calcErrNaive(trainingData, trainingLabels, testData, testLabels):
+    errs = 0
+    prior, conditional, unique = trainNaive(trainingData, trainingLabels)
+    for i in range(len(testData)):
+        prediction = testNaive(prior, conditional, unique, testData[i])
+        errs += int(prediction != testLabels[i])
+    
+    return np.round(1-errs/len(testLabels), 6)
+    
 dataset = ARFF.load(open('Autism-Adult-Data.arff'))
 data = np.array(dataset['data'])    
 
 data,labels = preProcess(data)
 
+#for i in np.arange(3,13,2):
+#    kErrs = kFold(data,labels, 6, k = i)
+#    print('k = ', i, ' with average = ' , np.average(kErrs))
+#    print(kErrs)
+
+#print(data[0])
+inds = np.random.choice(np.arange(len(data)), len(data))
+data[:] = data[inds]
+labels[:] = labels[inds]
+
 for i in np.arange(3,13,2):
-    kErrs = kFold(data,labels, 6, k = i)
-    print('k = ', i, ' with average = ' , np.average(kErrs))
+    kErrs = kFold(data, labels, i, typ = 'naive')
+    print('k = ', i, ' with average accuracy = ' , np.average(kErrs).round(6))
     print(kErrs)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
