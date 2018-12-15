@@ -5,10 +5,7 @@ Created on Thu Dec 13 18:02:47 2018
 @author: jackc
 """
 
-import numpy as np
-import arff as ARFF
-import matplotlib.pyplot as plt
-from scipy.io import arff 
+ 
 #from sklearn import svm 
 #Classification
 
@@ -28,8 +25,8 @@ Data:
    (20) boolean = label
    
 """
-
-
+import numpy as np
+import arff as ARFF
 
 def uNiQuE(vec):
     popCtr = 0
