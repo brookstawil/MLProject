@@ -195,10 +195,6 @@ ax.plot( [lower, upper] , [lower, upper], 'k-')
 
 
 
-
-
-
-
 data = red_data
 labels = red_targets
 
