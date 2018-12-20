@@ -85,7 +85,7 @@
 1,1,1,1,0,0,0,1,0,0,44,f,White-European,no,no,Australia,no,5,'18 and more',Self,NO
 1,0,1,1,1,1,1,1,0,1,20,f,Others,no,no,Canada,no,8,'18 and more',Self,YES
 1,0,1,1,0,1,1,1,0,1,20,f,Others,no,no,Canada,yes,7,'18 and more',Self,YES
-0,0,0,0,0,0,0,0,0,0,?,m,?,no,no,'Saudi Arabia',no,0,'18 and more',?,NO
+0,0,0,0,0,0,0,0,0,0,21,m,?,no,no,'Saudi Arabia',no,0,'18 and more',?,NO
 1,0,0,1,1,0,0,1,1,0,19,m,White-European,no,no,Australia,no,5,'18 and more',Parent,NO
 1,1,1,1,1,1,1,1,0,1,29,f,White-European,no,no,Australia,no,9,'18 and more',Self,YES
 1,0,1,0,0,0,0,1,0,0,21,m,'Middle Eastern ',no,no,'United States',no,3,'18 and more',Self,NO
@@ -114,7 +114,7 @@
 1,0,0,0,0,0,0,1,1,1,30,f,White-European,no,yes,'United Kingdom',no,4,'18 and more',Self,NO
 1,1,1,1,1,1,0,1,1,1,29,f,White-European,no,no,'New Zealand',no,9,'18 and more',Self,YES
 1,0,1,1,0,0,0,0,0,1,17,f,White-European,no,yes,Romania,no,4,'18 and more',Self,NO
-0,1,0,0,1,0,1,0,0,1,?,f,?,no,no,Jordan,no,4,'18 and more',?,NO
+0,1,0,0,1,0,1,0,0,1,32,f,?,no,no,Jordan,no,4,'18 and more',?,NO
 0,0,0,1,1,1,0,1,0,1,22,f,Pasifika,no,no,'New Zealand',no,5,'18 and more',Self,NO
 1,1,1,0,1,1,1,0,1,1,19,f,Latino,no,yes,Brazil,no,8,'18 and more',Self,YES
 1,1,1,1,1,0,0,1,1,1,42,f,White-European,no,yes,Sweden,no,8,'18 and more',Self,YES
