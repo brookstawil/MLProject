@@ -7,7 +7,7 @@ Created on Fri Dec 14 22:01:44 2018
 
 import numpy as np
 import matplotlib.pyplot as plt
-
+from sklearn.decomposition import PCA
 red_filedata = np.genfromtxt('winequality-red.csv', delimiter=';', skip_header=1)
 white_filedata = np.genfromtxt('winequality-white.csv', delimiter=';', skip_header=1)
 
@@ -67,7 +67,27 @@ def calcAcc(trainingData, trainingLabels, testData, testLabels, kFeat = 3):
     
     return err, predictedList
     
-
+def calcAcc2(trainingData, trainingLabels, testData, testLabels, kFeat = 3):
+    trainingData = trainingData.T
+    pca = PCA(n_components=11)
+    pca.fit(trainingData)
+    trainingPCA = pca.transform(trainingData)
+    testPCA = pca.transform(testData.T)
+    W = trainingPCA    
+    W = np.concatenate((W,np.ones((W.shape[0],1))),axis = 1)
+    gamma = np.linalg.pinv(np.matmul(W.T,W))
+    gamma = np.matmul(gamma, W.T)
+    gamma = np.matmul(gamma, trainingLabels.T)
+    print('ok')
+    err = 0
+    temp = np.ones((1,testPCA.shape[0]))
+    print(temp.shape)
+    testPCA = np.append((testPCA, temp))
+    predicted = np.matmul(trainingPCA, gamma)
+    print('as')
+    return 0,0
+    
+    
 def kFold(data, labels, typeWine, kFeat = 5, kFolds = 5):
     #shuffle
     inds = np.random.choice(np.arange(data.shape[1]), data.shape[1])
@@ -76,7 +96,7 @@ def kFold(data, labels, typeWine, kFeat = 5, kFolds = 5):
     typeWine = typeWine[inds]
 
     startInd = 0
-    stepSize = int(len(data)/kFolds)
+    stepSize = int(data.shape[1]/kFolds)
     Errs = []
     predictions = []
     for i in range(kFolds):
